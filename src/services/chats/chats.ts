@@ -21,6 +21,7 @@ import type { Application } from '../../declarations'
 import { ChatsService, getOptions } from './chats.class'
 import { chatsPath, chatsMethods } from './chats.shared'
 import { v4 as uuidv4 } from 'uuid';
+import { Paginated } from '@feathersjs/feathers/lib/declarations'
 
 export * from './chats.class'
 export * from './chats.schema'
@@ -53,8 +54,8 @@ export const chats = (app: Application) => {
           if (!data.id) {
             data.id = uuidv4();
           }
-          if (!data.title || !data.owner_id || !data.participants) {
-            throw new Error('Title, owner_id, and participants are required fields, and participants cannot be empty.');
+          if (!data.title || !data.owner_id ) {
+            throw new Error('Title, owner_id, and participants are required fields cannot be empty.');
           }
           console.log(context)
           return context;
@@ -62,7 +63,22 @@ export const chats = (app: Application) => {
         schemaHooks.validateData(chatsDataValidator),
         schemaHooks.resolveData(chatsDataResolver)
       ],
-      patch: [schemaHooks.validateData(chatsPatchValidator), schemaHooks.resolveData(chatsPatchResolver)],
+      patch: [
+        async (context) => {
+          const data = context.data as Partial<ChatsData>;
+      
+          // Если нужно обновить заголовок чата
+          if (data?.title) {
+            if (!data.title) {
+              throw new Error('Title is required for updating a chat.');
+            }
+          }
+        schemaHooks.validateData(chatsPatchValidator),
+        schemaHooks.resolveData(chatsPatchResolver)
+        }
+      ],
+      
+
       remove: []
     },
     after: {

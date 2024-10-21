@@ -15,7 +15,6 @@ export const chatsSchema = {
     id: { type: 'string', format: 'uuid' },
     title: { type: 'string' },
     owner_id: { type: 'string', format: 'uuid' },
-    participants: { type: 'object' }
   }
 } as const;
 

@@ -1,3 +1,4 @@
+import { participants } from './participants/participants'
 import { messages } from './messages/messages'
 import { chats } from './chats/chats'
 import { user } from './users/users'
@@ -5,6 +6,7 @@ import { user } from './users/users'
 import type { Application } from '../declarations'
 
 export const services = (app: Application) => {
+  app.configure(participants)
   app.configure(messages)
   app.configure(chats)
   app.configure(user)
