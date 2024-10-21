@@ -6,8 +6,8 @@
     "http://localhost:3030"
   ],
   "paginate": {
-    "default": 10,
-    "max": 50
+    "default": 50,
+    "max": 100
   },
   "mysql": {
     "client": "mysql",
@@ -26,7 +26,7 @@
         "typ": "access"
       },
       "algorithm": "HS256",
-      "expiresIn": "1d"
+      "expiresIn": "180d"
     },
     "local": {
       "usernameField": "email",
