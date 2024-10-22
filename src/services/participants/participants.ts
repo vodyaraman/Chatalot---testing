@@ -31,21 +31,6 @@ export const participants = (app: Application) => {
     events: []
   });
 
-  app.service('participants').hooks({
-    before: {
-      find: [
-        async (context) => {
-          const { chatId } = context.params.query || {};
-          if (chatId) {
-            // Вызов кастомного метода findByChat, если передан chatId
-            context.result = await app.service('participants').findByChat(context.params);
-          }
-          return context;
-        }
-      ]
-    }
-  });
-
   // Initialize hooks
   app.service(participantsPath).hooks({
     around: {

@@ -56,7 +56,7 @@ export const chatsPatchResolver = resolve<ChatsPatch, HookContext<ChatsService>>
 export const chatsQuerySchema = {
   $id: 'ChatsQuery',
   type: 'object',
-  additionalProperties: false,
+  additionalProperties: true,
   properties: {
     ...querySyntax(chatsSchema.properties)
   }

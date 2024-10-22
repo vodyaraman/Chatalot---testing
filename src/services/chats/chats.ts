@@ -35,6 +35,39 @@ export const chats = (app: Application) => {
     // You can add additional custom events to be sent to clients here
     events: []
   })
+
+  app.service('chats').hooks({
+    before: {
+      find: [
+        async (context) => {
+          const { userId } = context.params.query || {} as any;
+  
+          // Проверка на наличие userId в запросе
+          if (userId) {
+            // Получаем все chatId для данного участника из таблицы participants
+            const participantChatIds = await app.service('participants').Model
+              .select('chatId')
+              .from('participants')
+              .where('userId', userId);
+  
+            if (!participantChatIds.length) {
+              context.result = [];
+              return context;
+            }
+  
+            const chatIds = participantChatIds.map((participant) => participant.chatId);
+  
+            // Обновляем запрос для поиска чатов с полученными chatIds
+            context.params.query = {
+              id: { $in: chatIds }
+            };
+          }
+  
+          return context;
+        }
+      ]
+    }
+  });  
   // Initialize hooks
   app.service(chatsPath).hooks({
     around: {
