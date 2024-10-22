@@ -21,7 +21,28 @@ export class ParticipantsService<ServiceParams extends Params = ParticipantsPara
   ParticipantsData,
   ParticipantsParams,
   ParticipantsPatch
-> {}
+> {
+  async findByChat(params: ParticipantsParams): Promise<Participants[]> {
+    const { query } = params || {};
+
+    if (!query || !query.chatId) {
+      throw new Error('chatId is required');
+    }
+
+    const participants = await this.Model
+      .select('participants.id', 'users.username', 'users.avatar') // выбираем только нужные поля
+      .from('participants')
+      .join('users', 'participants.userId', '=', 'users.id')
+      .where('participants.chatId', query.chatId);
+
+    // Возвращаем только необходимые поля
+    return participants.map(participant => ({
+      id: participant.id,
+      username: participant.username,
+      avatar: participant.avatar
+    })) as any;
+  }
+}
 
 export const getOptions = (app: Application): KnexAdapterOptions => {
   return {

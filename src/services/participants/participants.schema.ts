@@ -7,17 +7,23 @@ import { dataValidator, queryValidator } from '../../validators'
 import type { ParticipantsService } from './participants.class'
 
 // Main data model schema
-export const participantsSchema = {
-  $id: 'Participants',
-  type: 'object',
-  additionalProperties: false,
-  required: ['id', 'chat_id', 'user_id'],
-  properties: {
-    id: { type: 'string', format: 'uuid' }, 
-    chat_id: { type: 'string', format: 'uuid' },
-    user_id: { type: 'string', format: 'uuid' } 
+  export const participantsSchema = {
+    $id: 'Participants',
+    type: 'object',
+    additionalProperties: false,
+    required: ['id', 'chatId', 'userId'],
+    properties: {
+      id: { type: 'string', format: 'uuid' }, 
+      chatId: { type: 'string', },
+      userId: { type: 'string', } 
+    }
+  } as const;
+
+  export interface ExportParticipant {
+    id: string;
+    username: string;
+    avatar: string;
   }
-} as const;
 
 export type Participants = FromSchema<typeof participantsSchema>
 export const participantsValidator = getValidator(participantsSchema, dataValidator)
@@ -30,7 +36,7 @@ export const participantsDataSchema = {
   $id: 'ParticipantsData',
   type: 'object',
   additionalProperties: false,
-  required: ['id', 'chat_id', 'user_id'],
+  required: ['id', 'chatId', 'userId'],
   properties: {
     ...participantsSchema.properties
   }

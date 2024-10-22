@@ -1,7 +1,6 @@
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.html
-import { authenticate } from '@feathersjs/authentication'
-
-import { hooks as schemaHooks } from '@feathersjs/schema'
+import { authenticate } from '@feathersjs/authentication';
+import { hooks as schemaHooks } from '@feathersjs/schema';
 import { v4 as uuidv4 } from 'uuid';
 
 import {
@@ -12,25 +11,40 @@ import {
   participantsExternalResolver,
   participantsDataResolver,
   participantsPatchResolver,
-  participantsQueryResolver
-} from './participants.schema'
+  participantsQueryResolver,
+  Participants,
+  ExportParticipant
+} from './participants.schema';
 
-import type { Application } from '../../declarations'
-import { ParticipantsService, getOptions } from './participants.class'
-import { participantsPath, participantsMethods } from './participants.shared'
+import type { Application, HookContext } from '../../declarations';
+import { ParticipantsService, getOptions } from './participants.class';
+import { participantsPath, participantsMethods } from './participants.shared';
 
-export * from './participants.class'
-export * from './participants.schema'
+export * from './participants.class';
+export * from './participants.schema';
 
 // A configure function that registers the service and its hooks via `app.configure`
 export const participants = (app: Application) => {
   // Register our service on the Feathers application
   app.use(participantsPath, new ParticipantsService(getOptions(app)), {
-    // A list of all methods this service exposes externally
     methods: participantsMethods,
-    // You can add additional custom events to be sent to clients here
     events: []
-  })
+  });
+
+  app.service('participants').hooks({
+    before: {
+      find: [
+        async (context) => {
+          const { chatId } = context.params.query || {};
+          if (chatId) {
+            // Вызов кастомного метода findByChat, если передан chatId
+            context.result = await app.service('participants').findByChat(context.params);
+          }
+          return context;
+        }
+      ]
+    }
+  });
 
   // Initialize hooks
   app.service(participantsPath).hooks({
@@ -49,10 +63,17 @@ export const participants = (app: Application) => {
       find: [],
       get: [],
       create: [
-        async (context) => {
-          if (!context?.id) {
-            context.id = uuidv4();
+        async (context: HookContext<ParticipantsService>) => {
+          const data = context.data as Partial<Participants>;
+
+          if (!data.chatId || !data.userId) {
+            throw new Error('chatId and userId are required');
           }
+
+          if (!data.id) {
+            data.id = uuidv4();
+          }
+
           return context;
         },
         schemaHooks.validateData(participantsDataValidator),
@@ -65,17 +86,17 @@ export const participants = (app: Application) => {
       remove: []
     },
     after: {
-      all: []
+      all: [],
     },
     error: {
       all: []
     }
-  })
-}
+  });
+};
 
 // Add this service to the service type index
 declare module '../../declarations' {
   interface ServiceTypes {
-    [participantsPath]: ParticipantsService
+    [participantsPath]: ParticipantsService;
   }
 }
