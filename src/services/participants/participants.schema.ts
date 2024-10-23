@@ -63,7 +63,7 @@ export const participantsPatchResolver = resolve<ParticipantsPatch, HookContext<
 export const participantsQuerySchema = {
   $id: 'ParticipantsQuery',
   type: 'object',
-  additionalProperties: false,
+  additionalProperties: true,
   properties: {
     ...querySyntax(participantsSchema.properties)
   }
